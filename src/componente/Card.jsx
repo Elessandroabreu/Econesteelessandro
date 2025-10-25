@@ -9,19 +9,25 @@ export default function Card({
   color = "bg-success",
   border = "border-5 eco-border",
 }) {
-  const [imagemSrc, setImagemSrc] = useState("/placeholder.png");
+  const [imagemSrc, setImagemSrc] = useState("/placeholder.svg");
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
+    let objectUrl = null;
+    
     if (img && img.includes("localhost:8084")) {
       setCarregando(true);
       
-      // Tentar carregar a imagem
-      fetch(img, {
-        headers: {
-          'Accept': 'image/jpeg,image/png,image/*'
-        }
-      })
+      const token = localStorage.getItem("token");
+      const headers = {
+        'Accept': 'image/jpeg,image/png,image/*'
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      fetch(img, { headers })
         .then(response => {
           if (response.ok) {
             return response.blob();
@@ -29,24 +35,26 @@ export default function Card({
           throw new Error("Erro ao carregar imagem");
         })
         .then(blob => {
-          const imageUrl = URL.createObjectURL(blob);
-          setImagemSrc(imageUrl);
+          objectUrl = URL.createObjectURL(blob);
+          setImagemSrc(objectUrl);
           setCarregando(false);
         })
         .catch(error => {
           console.error("Erro ao carregar imagem:", error);
-          setImagemSrc("/placeholder.png");
+          setImagemSrc("/placeholder.svg");
           setCarregando(false);
         });
     } else if (img) {
       setImagemSrc(img);
       setCarregando(false);
+    } else {
+      setImagemSrc("/placeholder.svg");
+      setCarregando(false);
     }
 
-    // Cleanup: liberar URL quando componente desmontar
     return () => {
-      if (imagemSrc.startsWith("blob:")) {
-        URL.revokeObjectURL(imagemSrc);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
       }
     };
   }, [img]);
@@ -72,12 +80,13 @@ export default function Card({
         )}
 
         <div
-          className="p-4 d-flex align-items-center justify-content-center"
+          className="p-2 d-flex align-items-center justify-content-center"
           style={{
-            height: "200px",
+            height: "250px",
             backgroundColor: "#f8f9fa",
-            borderRadius: "30px",
+            borderRadius: "20px",
             margin: "1rem",
+            overflow: "hidden",
           }}
         >
           {carregando ? (
@@ -87,14 +96,15 @@ export default function Card({
           ) : (
             <img
               src={imagemSrc}
-              className="w-100 h-100 object-fit-cover"
+              className="w-100 h-100"
               alt={title}
               style={{
-                borderRadius: "30px",
+                borderRadius: "20px",
+                objectFit: "contain",
               }}
               onError={(e) => {
                 console.error("Falha ao renderizar imagem");
-                e.target.src = "/placeholder.png";
+                e.target.src = "/placeholder.svg";
               }}
             />
           )}

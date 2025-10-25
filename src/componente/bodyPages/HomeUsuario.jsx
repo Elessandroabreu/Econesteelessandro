@@ -1,12 +1,10 @@
-// HomeUsuario.jsx - VERSÃO CORRIGIDA
-
 import { Navbar } from "../Navbar";
 import CardBadge from "../CardBadge";
 import Footer from "../Footer";
 import CardPropaganda from "../CardPropaganda";
 import Banner from "../Banner";
 import Card from "../Card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Toast from "../Toast";
 import { useNavigate } from "react-router-dom";
 import { produtoService } from "../../services/produtoService";
@@ -17,31 +15,25 @@ export default function HomeUsuario() {
   const [loading, setLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState("");
 
-  const mostrarToast = (msg) => {
+  const mostrarToast = useCallback((msg) => {
     const toast = document.getElementById("toast");
     if (toast) {
       const bsToast = new window.bootstrap.Toast(toast);
       setToastMessage(msg);
       bsToast.show();
     }
-  };
-
-  useEffect(() => {
-    carregarProdutos();
   }, []);
 
-  const carregarProdutos = async () => {
+  const carregarProdutos = useCallback(async () => {
     try {
       setLoading(true);
       const produtos = await produtoService.listarTodos();
 
-      // Converter produtos para o formato usado no front
       const produtosFormatados = produtos.map((p) => ({
         cdProduto: p.cdProduto,
         nome: p.nmProduto,
         preco: p.preco,
         categoria: p.categoria,
-        // CORREÇÃO: Usar a URL da imagem diretamente
         img: `http://localhost:8084/api/v1/produto/${p.cdProduto}/imagem`,
         qtdEstoque: p.qtdEstoque,
       }));
@@ -58,9 +50,13 @@ export default function HomeUsuario() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [mostrarToast]);
 
-  function paginaProd(title, categoria) {
+  useEffect(() => {
+    carregarProdutos();
+  }, [carregarProdutos]);
+
+  const paginaProd = useCallback((title, categoria) => {
     const query = new URLSearchParams();
     query.set("title", title);
     const listaFiltrada = listaProd.filter(
@@ -68,7 +64,7 @@ export default function HomeUsuario() {
     );
     query.set("listaProd", encodeURIComponent(JSON.stringify(listaFiltrada)));
     navigate(`/pagProduto?${query.toString()}`);
-  }
+  }, [listaProd, navigate]);
 
   const destaque = listaProd.slice(0, 4);
 

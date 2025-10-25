@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { CarrinhoProvider } from "./context/CarrinhoContext";
 import HomeUsuario from "./componente/bodyPages/HomeUsuario";
 import App from "./App";
 import SobreNos from "./componente/bodyPages/SobreNos";
@@ -12,29 +13,31 @@ import PagProduto from "./componente/bodyPages/PagProduto";
 import TelaEditarPerfil from "./pages/TelaEditarPerfil";
 import { Feedback } from "./pages/Feedback";
 import HomeLogado from "./componente/HomeLogado";
+import { GerenciarProduto } from "./pages/GerenciarProduto";
+import Carrinho from "./pages/Carrinho";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { GerenciarProduto } from "./pages/GerenciarProduto";
-
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/home" element={<HomeUsuario />} />
-        <Route path="/sobre" element={<SobreNos />} />
-        <Route path="/contato" element={<Contato />} />
-        <Route path="/adm" element={<TelaAdm />} />
-        <Route path="/cadastroProduto" element={<TelaCadastrarProduto />} />
-        <Route path="/criarCadastro" element={<CriarAdministrador />} />
-        <Route path="/pagProduto" element={<PagProduto />} />
-        <Route path="/editarperfil" element={<TelaEditarPerfil />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route path="/homeLogado" element={<HomeLogado />} />
-        <Route path="/GerenciarProduto" element={<GerenciarProduto/>} />
-      </Routes>
-
+      <CarrinhoProvider>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/home" element={<HomeUsuario />} />
+          <Route path="/sobre" element={<SobreNos />} />
+          <Route path="/contato" element={<Contato />} />
+          <Route path="/adm" element={<TelaAdm />} />
+          <Route path="/cadastroProduto" element={<TelaCadastrarProduto />} />
+          <Route path="/criarCadastro" element={<CriarAdministrador />} />
+          <Route path="/pagProduto" element={<PagProduto />} />
+          <Route path="/editarperfil" element={<TelaEditarPerfil />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/homeLogado" element={<HomeLogado />} />
+          <Route path="/GerenciarProduto" element={<GerenciarProduto />} />
+          <Route path="/carrinho" element={<Carrinho />} />
+        </Routes>
+      </CarrinhoProvider>
     </BrowserRouter>
   </StrictMode>
 );

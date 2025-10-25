@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import InputSearch from "./InputSearch";
+import { useCarrinho } from "../context/CarrinhoContext";
 
 export function Navbar() {
   const navigate = useNavigate();
+  const { calcularQuantidadeTotal } = useCarrinho();
+  const [tema, setTema] = useState("dark");
 
   useEffect(() => {
     const temaSalvo = localStorage.getItem("tema") || "dark";
@@ -11,8 +14,6 @@ export function Navbar() {
     document.documentElement.setAttribute("data-bs-theme", temaSalvo);
   }, []);
 
-  const [tema, setTema] = useState("dark");
-  
   function toggleTheme() {
     const newTheme = tema === "light" ? "dark" : "light";
     setTema(newTheme);
@@ -95,17 +96,22 @@ export function Navbar() {
             </li>
 
             <li className="nav-item">
-              <button className="btn btn-outline-eco bg-transparent border-0 position-relative">
+              <button 
+                className="btn btn-outline-eco bg-transparent border-0 position-relative"
+                onClick={() => navigate("/carrinho")}
+              >
                 <i className="bi bi-cart"></i>
-                <span
-                  className={
-                    tema === "dark"
-                      ? "badge text-light position-absolute top-0 start-50"
-                      : "badge text-dark position-absolute top-0 start-50"
-                  }
-                >
-                  {0}
-                </span>
+                {calcularQuantidadeTotal() > 0 && (
+                  <span
+                    className={
+                      tema === "dark"
+                        ? "badge bg-success text-light position-absolute top-0 start-50"
+                        : "badge bg-success text-light position-absolute top-0 start-50"
+                    }
+                  >
+                    {calcularQuantidadeTotal()}
+                  </span>
+                )}
               </button>
             </li>
 
@@ -116,7 +122,6 @@ export function Navbar() {
             </li>
           </ul>
 
-          {/* Barra de busca para mobile */}
           <div className="d-lg-none mt-2">
             <InputSearch />
           </div>

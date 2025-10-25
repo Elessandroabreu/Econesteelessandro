@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { produtoService } from "../services/produtoService";
 
 export function GerenciarProduto() {
@@ -28,16 +28,19 @@ export function GerenciarProduto() {
   const handleExcluir = async (id, nomeProduto) => {
     if (
       window.confirm(
-        `Tem certeza que deseja excluir o produto: ${nomeProduto}? Esta ação não pode ser desfeita.`
+        `Tem certeza que deseja inativar o produto: ${nomeProduto}? Esta ação irá remover o produto da listagem.`
       )
     ) {
       try {
         await produtoService.inativar(id);
-        alert("Produto excluído com sucesso!");
-        carregarProdutos();
+        
+        // Remover o produto da lista local
+        setProdutos(produtos.filter(p => p.cdProduto !== id));
+        
+        alert("Produto inativado com sucesso!");
       } catch (error) {
-        console.error("Erro ao excluir produto:", error);
-        alert("Erro ao excluir produto");
+        console.error("Erro ao inativar produto:", error);
+        alert("Erro ao inativar produto: " + (error.response?.data || error.message));
       }
     }
   };
@@ -113,7 +116,7 @@ export function GerenciarProduto() {
                       onClick={() =>
                         handleExcluir(produto.cdProduto, produto.nmProduto)
                       }
-                      title="Excluir Produto"
+                      title="Inativar Produto"
                     >
                       <i className="bi bi-trash"></i>
                     </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useCarrinho } from "../../context/CarrinhoContext";
 
 export default function Card({
   img,
@@ -8,7 +9,11 @@ export default function Card({
   badge,
   color = "bg-success",
   border = "border-5 eco-border",
+  cdProduto,
+  categoria,
+  qtdEstoque,
 }) {
+  const { adicionarItem } = useCarrinho();
   const [imagemSrc, setImagemSrc] = useState("/placeholder.svg");
   const [carregando, setCarregando] = useState(true);
 

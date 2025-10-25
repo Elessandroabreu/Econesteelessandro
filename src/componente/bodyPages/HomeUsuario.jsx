@@ -100,6 +100,9 @@ export default function HomeUsuario() {
                   desc={prod.categoria}
                   price={prod.preco}
                   border={"border-0"}
+                  cdProduto={prod.cdProduto}
+                  categoria={prod.categoria}
+                  qtdEstoque={prod.qtdEstoque}
                 />
               </div>
             ))
@@ -171,6 +174,29 @@ export default function HomeUsuario() {
         </div>
       </main>
       <Toast msg={toastMessage} color="bg-danger" />
+      
+      {/* Toast para adicionar ao carrinho */}
+      <div
+        className="toast align-items-center bg-success text-white position-fixed bottom-0 end-0 mb-3 me-3"
+        role="alert"
+        id="toast-carrinho"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div className="d-flex">
+          <div className="toast-body">
+            <i className="bi bi-check-circle me-2"></i>
+            Produto adicionado ao carrinho!
+          </div>
+          <button
+            type="button"
+            className="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+      
       <Footer />
     </>
   );

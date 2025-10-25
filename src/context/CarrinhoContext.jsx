@@ -53,6 +53,7 @@ export function CarrinhoProvider({ children }) {
         );
       }
 
+      // Adicionar novo produto
       return [...itensAtuais, { ...produto, quantidade: 1 }];
     });
   }, []);
@@ -63,26 +64,36 @@ export function CarrinhoProvider({ children }) {
     );
   }, []);
 
-  const atualizarQuantidade = useCallback((cdProduto, quantidade) => {
-    if (quantidade <= 0) {
-      removerItem(cdProduto);
-      return;
-    }
+  const atualizarQuantidade = useCallback((cdProduto, novaQuantidade) => {
+    console.log("atualizarQuantidade chamada - Produto:", cdProduto, "Nova quantidade:", novaQuantidade);
+    
+    setItens((itensAtuais) => {
+      console.log("Itens atuais:", itensAtuais);
+      
+      // Se quantidade for 0 ou negativa, remove o item
+      if (novaQuantidade <= 0) {
+        console.log("Removendo item do carrinho");
+        return itensAtuais.filter((item) => item.cdProduto !== cdProduto);
+      }
 
-    setItens((itensAtuais) =>
-      itensAtuais.map((item) => {
+      const novosItens = itensAtuais.map((item) => {
         if (item.cdProduto === cdProduto) {
+          console.log("Item encontrado! Estoque:", item.qtdEstoque);
           // Verificar se não excede o estoque
-          if (quantidade > item.qtdEstoque) {
-            alert("Quantidade solicitada excede o estoque disponível!");
+          if (novaQuantidade > item.qtdEstoque) {
+            alert("Quantidade máxima em estoque atingida!");
             return item;
           }
-          return { ...item, quantidade };
+          console.log("Atualizando quantidade para:", novaQuantidade);
+          return { ...item, quantidade: novaQuantidade };
         }
         return item;
-      })
-    );
-  }, [removerItem]);
+      });
+      
+      console.log("Novos itens:", novosItens);
+      return novosItens;
+    });
+  }, []);
 
   const limparCarrinho = useCallback(() => {
     if (window.confirm("Tem certeza que deseja limpar o carrinho?")) {

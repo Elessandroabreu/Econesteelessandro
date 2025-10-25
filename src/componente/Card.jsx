@@ -65,12 +65,16 @@ export default function Card({
   }, [img]);
 
   const handleAdicionarCarrinho = () => {
+    if (qtdEstoque <= 0) {
+      alert("Produto sem estoque!");
+      return;
+    }
+
     const produto = {
       cdProduto,
       nome: title,
       preco: typeof price === "number" ? price : parseFloat(price),
       categoria,
-      img: imagemSrc,
       qtdEstoque
     };
     

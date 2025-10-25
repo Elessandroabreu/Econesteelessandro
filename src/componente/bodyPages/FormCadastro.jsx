@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BotaoTrocaLogin } from "../BotaoTrocaLogin";
 import InputOutline from "../InputOutline";
 import { authService } from "../../services/authService";
@@ -14,6 +14,8 @@ export function FormCadastro({ trocaLogin }) {
   const [telefone, setTelefone] = useState("");
   const [estado, setEstado] = useState("SC");
   const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState("");
+
   const estadosBrasil = [
     { nome: "Acre", sigla: "AC" },
     { nome: "Alagoas", sigla: "AL" },
@@ -47,16 +49,36 @@ export function FormCadastro({ trocaLogin }) {
   const handleCadastro = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErro("");
 
+    if (!nome || !email || !senha || !cpf || !endereco || !telefone || !estado) {
+      setErro("Por favor, preencha todos os campos");
+      setLoading(false);
+      return;
+    }
+
+    const cpfLimpo = cpf.replace(/\D/g, "");
+    if (cpfLimpo.length !== 11) {
+      setErro("CPF deve conter 11 dígitos");
+      setLoading(false);
+      return;
+    }
+
+    const telefoneLimpo = telefone.replace(/\D/g, "");
+    if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11) {
+      setErro("Telefone deve conter 10 ou 11 dígitos");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await authService.register({
         nome,
         email,
         senha,
-        cpf: cpf.replace(/\D/g, ""), // Remove formatação
+        cpf: cpfLimpo,
         endereco,
-        telefone: telefone.replace(/\D/g, ""),
+        telefone: telefoneLimpo,
         estado,
       });
 
@@ -76,7 +98,8 @@ export function FormCadastro({ trocaLogin }) {
       navigate("/homeLogado");
     } catch (error) {
       console.error("Erro no cadastro:", error);
-      alert(error.response?.data || "Erro ao cadastrar");
+      const mensagem = error.response?.data || "Erro ao cadastrar. Tente novamente.";
+      setErro(mensagem);
     } finally {
       setLoading(false);
     }
@@ -95,6 +118,12 @@ export function FormCadastro({ trocaLogin }) {
         </div>
 
         <div className="container-fluid w-50 justify-content-center">
+          {erro && (
+            <div className="alert alert-danger" role="alert">
+              {erro}
+            </div>
+          )}
+
           <form onSubmit={handleCadastro}>
             <InputOutline
               placeholder="Nome"
@@ -142,7 +171,7 @@ export function FormCadastro({ trocaLogin }) {
                 onChange={(e) => setEstado(e.target.value)}
               >
                 {estadosBrasil.map(est => (
-                  <option value={est.sigla}>{est.nome}</option>
+                  <option key={est.sigla} value={est.sigla}>{est.nome}</option>
                 ))}
               </select>
             </div>
@@ -153,7 +182,14 @@ export function FormCadastro({ trocaLogin }) {
                 type="submit"
                 disabled={loading}
               >
-                {loading ? "CADASTRANDO..." : "CADASTRAR"}
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    CADASTRANDO...
+                  </>
+                ) : (
+                  "CADASTRAR"
+                )}
               </button>
               <BotaoTrocaLogin trocaLogin={trocaLogin} text="Login" />
             </div>

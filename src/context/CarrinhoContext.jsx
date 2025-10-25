@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 
 const CarrinhoContext = createContext();
 
-// Hook deve ser exportado separadamente
+// Hook personalizado para usar o carrinho
 export function useCarrinho() {
   const context = useContext(CarrinhoContext);
   if (!context) {
@@ -117,4 +117,7 @@ export function CarrinhoProvider({ children }) {
       {children}
     </CarrinhoContext.Provider>
   );
-};
+}
+
+// Export default para o Provider
+export default CarrinhoProvider;

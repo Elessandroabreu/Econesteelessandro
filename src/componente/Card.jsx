@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useCarrinho } from "../../context/CarrinhoContext";
+import { useCarrinho } from "../context/CarrinhoContext";
 
 export default function Card({
   img,
@@ -64,6 +64,26 @@ export default function Card({
     };
   }, [img]);
 
+  const handleAdicionarCarrinho = () => {
+    const produto = {
+      cdProduto,
+      nome: title,
+      preco: typeof price === "number" ? price : parseFloat(price),
+      categoria,
+      img: imagemSrc,
+      qtdEstoque
+    };
+    
+    adicionarItem(produto);
+    
+    // Mostrar toast de confirmação
+    const toast = document.getElementById("toast-carrinho");
+    if (toast) {
+      const bsToast = new window.bootstrap.Toast(toast);
+      bsToast.show();
+    }
+  };
+
   return (
     <>
       <div
@@ -124,7 +144,12 @@ export default function Card({
             <h5 className="card-text fw-bolder eco-card-text mb-0">
               R$ {typeof price === "number" ? price.toFixed(2) : price}
             </h5>
-            <button className="btn btn-eco px-3">
+            <button 
+              className="btn btn-eco px-3"
+              onClick={handleAdicionarCarrinho}
+              disabled={qtdEstoque <= 0}
+              title={qtdEstoque <= 0 ? "Produto sem estoque" : "Adicionar ao carrinho"}
+            >
               <i className="bi bi-cart-plus-fill"></i>
             </button>
           </div>

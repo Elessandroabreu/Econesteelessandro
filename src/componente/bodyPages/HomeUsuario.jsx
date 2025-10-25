@@ -91,7 +91,7 @@ export default function HomeUsuario() {
             destaque.map((prod) => (
               <div
                 className="col-12 col-sm-6 col-md-6 col-lg-3"
-                key={prod.cdProduto}
+                key={`destaque-${prod.cdProduto}`}
               >
                 <Card
                   img={prod.img}
@@ -107,7 +107,7 @@ export default function HomeUsuario() {
               </div>
             ))
           ) : (
-            <div className="col-12 text-center">
+            <div className="col-12 text-center" key="sem-destaque">
               <p className="text-muted">
                 Nenhum produto em destaque no momento
               </p>
@@ -119,6 +119,7 @@ export default function HomeUsuario() {
 
         <div className="row row-gap-4 my-5 flex-wrap align-items-center justify-content-center">
           <CardPropaganda
+            key="propaganda-higiene"
             text={"Higiene & Cuidados Pessoais"}
             img={"/Bucha.jpeg"}
             onClick={() =>
@@ -127,12 +128,14 @@ export default function HomeUsuario() {
           />
 
           <CardPropaganda
+            key="propaganda-casa"
             text={"Casa Sustentáveis"}
             img={"/CasaSustentaveis.png"}
             onClick={() => paginaProd("Casa Sustentáveis", "casa")}
           />
 
           <CardPropaganda
+            key="propaganda-utensilios"
             text={"Utensílios & Acessórios Reutilizáveis"}
             img={"/Utensilios.png"}
             onClick={() => paginaProd("Utensílios", "utensilios")}
@@ -166,9 +169,10 @@ export default function HomeUsuario() {
         </div>
 
         <div className="row flex-wrap gap-2 align-items-center justify-content-center my-5">
-          <CardBadge text={"Gestos simples transformam grandes realidades."} />
-          <CardBadge text={"Pequenas mudanças geram grandes impactos."} />
+          <CardBadge key="badge-1" text={"Gestos simples transformam grandes realidades."} />
+          <CardBadge key="badge-2" text={"Pequenas mudanças geram grandes impactos."} />
           <CardBadge
+            key="badge-3"
             text={"Conheça nossos produtos e faça parte desse movimento"}
           />
         </div>

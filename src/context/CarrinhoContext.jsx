@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const CarrinhoContext = createContext();
 
+// Hook deve ser exportado separadamente
 export function useCarrinho() {
   const context = useContext(CarrinhoContext);
   if (!context) {
@@ -10,34 +11,41 @@ export function useCarrinho() {
   return context;
 }
 
+// Componente Provider
 export function CarrinhoProvider({ children }) {
-  const [itens, setItens] = useState([]);
-
-  // Carregar carrinho do localStorage ao iniciar
-  useEffect(() => {
+  const [itens, setItens] = useState(() => {
+    // Inicializar estado a partir do localStorage
     const carrinhoSalvo = localStorage.getItem("carrinho");
     if (carrinhoSalvo) {
       try {
-        setItens(JSON.parse(carrinhoSalvo));
+        return JSON.parse(carrinhoSalvo);
       } catch (error) {
         console.error("Erro ao carregar carrinho:", error);
         localStorage.removeItem("carrinho");
+        return [];
       }
     }
-  }, []);
+    return [];
+  });
 
   // Salvar carrinho no localStorage sempre que mudar
   useEffect(() => {
     localStorage.setItem("carrinho", JSON.stringify(itens));
   }, [itens]);
 
-  const adicionarItem = (produto) => {
+  const adicionarItem = useCallback((produto) => {
     setItens((itensAtuais) => {
       const itemExiste = itensAtuais.find(
         (item) => item.cdProduto === produto.cdProduto
       );
 
       if (itemExiste) {
+        // Verificar se não excede o estoque
+        if (itemExiste.quantidade >= produto.qtdEstoque) {
+          alert("Quantidade máxima em estoque atingida!");
+          return itensAtuais;
+        }
+        
         return itensAtuais.map((item) =>
           item.cdProduto === produto.cdProduto
             ? { ...item, quantidade: item.quantidade + 1 }
@@ -47,55 +55,66 @@ export function CarrinhoProvider({ children }) {
 
       return [...itensAtuais, { ...produto, quantidade: 1 }];
     });
-  };
+  }, []);
 
-  const removerItem = (cdProduto) => {
+  const removerItem = useCallback((cdProduto) => {
     setItens((itensAtuais) =>
       itensAtuais.filter((item) => item.cdProduto !== cdProduto)
     );
-  };
+  }, []);
 
-  const atualizarQuantidade = (cdProduto, quantidade) => {
+  const atualizarQuantidade = useCallback((cdProduto, quantidade) => {
     if (quantidade <= 0) {
       removerItem(cdProduto);
       return;
     }
 
     setItens((itensAtuais) =>
-      itensAtuais.map((item) =>
-        item.cdProduto === cdProduto ? { ...item, quantidade } : item
-      )
+      itensAtuais.map((item) => {
+        if (item.cdProduto === cdProduto) {
+          // Verificar se não excede o estoque
+          if (quantidade > item.qtdEstoque) {
+            alert("Quantidade solicitada excede o estoque disponível!");
+            return item;
+          }
+          return { ...item, quantidade };
+        }
+        return item;
+      })
     );
-  };
+  }, [removerItem]);
 
-  const limparCarrinho = () => {
-    setItens([]);
-  };
+  const limparCarrinho = useCallback(() => {
+    if (window.confirm("Tem certeza que deseja limpar o carrinho?")) {
+      setItens([]);
+      localStorage.removeItem("carrinho");
+    }
+  }, []);
 
-  const calcularTotal = () => {
+  const calcularTotal = useCallback(() => {
     return itens.reduce(
       (total, item) => total + item.preco * item.quantidade,
       0
     );
-  };
+  }, [itens]);
 
-  const calcularQuantidadeTotal = () => {
+  const calcularQuantidadeTotal = useCallback(() => {
     return itens.reduce((total, item) => total + item.quantidade, 0);
+  }, [itens]);
+
+  const value = {
+    itens,
+    adicionarItem,
+    removerItem,
+    atualizarQuantidade,
+    limparCarrinho,
+    calcularTotal,
+    calcularQuantidadeTotal,
   };
 
   return (
-    <CarrinhoContext.Provider
-      value={{
-        itens,
-        adicionarItem,
-        removerItem,
-        atualizarQuantidade,
-        limparCarrinho,
-        calcularTotal,
-        calcularQuantidadeTotal,
-      }}
-    >
+    <CarrinhoContext.Provider value={value}>
       {children}
     </CarrinhoContext.Provider>
   );
-}
+};

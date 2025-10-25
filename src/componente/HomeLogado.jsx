@@ -108,7 +108,7 @@ export default function HomeLogado() {
           {listaFiltrado.length > 0 ? (
             listaFiltrado.map((prod) => (
               <div
-                key={prod.cdProduto}
+                key={`produto-logado-${prod.cdProduto}`}
                 className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center"
               >
                 <Card
@@ -116,11 +116,14 @@ export default function HomeLogado() {
                   price={prod.preco}
                   desc={prod.categoria}
                   img={prod.img}
+                  cdProduto={prod.cdProduto}
+                  categoria={prod.categoria}
+                  qtdEstoque={prod.qtdEstoque}
                 />
               </div>
             ))
           ) : (
-            <div className="col-12 text-center">
+            <div className="col-12 text-center" key="sem-produtos-logado">
               <p className="text-muted">Nenhum produto encontrado nesta categoria</p>
             </div>
           )}

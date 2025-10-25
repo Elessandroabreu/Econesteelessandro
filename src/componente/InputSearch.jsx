@@ -1,7 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { produtoService } from "../services/produtoService";
 
 export default function InputSearch() {
+  const inputId = useId(); // Gera ID único para cada instância
+  const resultadoId = useId();
+  
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState([]);
   const [busca, setBusca] = useState("");
@@ -44,7 +47,7 @@ export default function InputSearch() {
           type="search"
           placeholder="Pesquise o produto desejado"
           aria-label="Search"
-          id="input-navbar"
+          id={inputId}
           value={busca}
           onChange={(e) => handleBusca(e.target.value)}
         />
@@ -57,13 +60,20 @@ export default function InputSearch() {
         </button>
         <ul
           className="position-absolute d-flex flex-column bg-primary p-0 bg-body rounded-2"
-          id="resultado-pesquisa"
-          style={{ top: "40px", left: "10px", width: "95%", zIndex: 1000 }}
+          id={resultadoId}
+          style={{ 
+            top: "40px", 
+            left: "10px", 
+            width: "95%", 
+            zIndex: 1000,
+            display: filtro.length > 0 ? "flex" : "none"
+          }}
         >
           {filtro.map((prod) => (
             <button
-              key={prod.cdProduto}
+              key={`search-result-${prod.cdProduto}`}
               className="bg-body border-bottom rounded-2 p-2 resp-result text-start"
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
                 setBusca("");
